@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./../generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Passenger {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  rides     Ride[]
+}
+
+model Driver {
+  id           String   @id
+  name         String
+  email        String   @unique
+  available    Boolean?
+  latitude     Float?
+  longitude    Float?
+  accidentData Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  rides        Ride[]
+}
+
+model Ride {
+  id                  String     @id @default(uuid())
+  passengerId         String
+  driverId            String?
+  vehicleId           String?
+  status              RideStatus @default(REQUESTED)
+  createdAt           DateTime   @default(now())
+  completedAt         DateTime?
+  
+  pickupLat           Float
+  pickupLng           Float
+  destinationLat      Float
+  destinationLng      Float
+
+  driver              Driver?    @relation(fields: [driverId], references: [id])
+  passenger           Passenger  @relation(fields: [passengerId], references: [id], onDelete: Cascade)
+}
+
+
+enum Role {
+  PASSENGER
+  CAPTAIN
+}
+
+enum RideStatus {
+  REQUESTED
+  ACCEPTED
+  COMPLETED
+  CANCELED
+}
