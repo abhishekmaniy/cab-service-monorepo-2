@@ -13,8 +13,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
 model Passenger {
   id        String   @id @default(uuid())
   name      String
@@ -38,23 +36,23 @@ model Driver {
 }
 
 model Ride {
-  id                  String     @id @default(uuid())
-  passengerId         String
-  driverId            String?
-  vehicleId           String?
-  status              RideStatus @default(REQUESTED)
-  createdAt           DateTime   @default(now())
-  completedAt         DateTime?
-  
-  pickupLat           Float
-  pickupLng           Float
-  destinationLat      Float
-  destinationLng      Float
+  id          String     @id @default(uuid())
+  passengerId String
+  driverId    String?
+  vehicleId   String?
+  status      RideStatus @default(REQUESTED)
+  createdAt   DateTime   @default(now())
+  completedAt DateTime?
+  price       Decimal
 
-  driver              Driver?    @relation(fields: [driverId], references: [id])
-  passenger           Passenger  @relation(fields: [passengerId], references: [id], onDelete: Cascade)
+  pickupLat      Float
+  pickupLng      Float
+  destinationLat Float
+  destinationLng Float
+
+  driver    Driver?   @relation(fields: [driverId], references: [id])
+  passenger Passenger @relation(fields: [passengerId], references: [id], onDelete: Cascade)
 }
-
 
 enum Role {
   PASSENGER

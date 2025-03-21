@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+      "outDir": "dist",
+      "module": "NodeNext",
+      "moduleResolution": "NodeNext",
+      "target": "ESNext",
+      "declaration": true,
+      "esModuleInterop": true
+    },
+    "include": ["index.ts"]
+  }
+  
