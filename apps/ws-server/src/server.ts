@@ -6,7 +6,7 @@ async function init() {
   dotenv.config();
 
   const httpServer = http.createServer();
-  const PORT = process.env.PORT || 8000;
+  const PORT = process.env.PORT || 8080;
 
   const socketService = new SocketService(httpServer); // Pass httpServer
 

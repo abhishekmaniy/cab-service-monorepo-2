@@ -5,19 +5,9 @@ import { getDistance } from './utils/distanceCalculator'
 const riderSockets = new Map() // Stores { riderId: socketId }
 const driverSockets = new Map() // Stores { driverId: socketId }
 
-const pub = new Redis({
-  host: process.env.REDIS_HOST!,
-  port: 6379,
-  username: 'default',
-  password: process.env.REDIS_PASSWORD!
-})
-
-const sub = new Redis({
-  host: process.env.REDIS_HOST!,
-  port: 6379,
-  username: 'default',
-  password: process.env.REDIS_PASSWORD!
-})
+const redisClient = new Redis(
+  'rediss://default:AWsUAAIjcDFlYmRhZTdiOWQ5ZDM0NWQ0YWIyMGZiNTIxNmEyZDQ1MXAxMA@social-man-27412.upstash.io:6379'
+)
 
 class SocketService {
   private _io: Server
@@ -31,20 +21,11 @@ class SocketService {
         methods: ['GET', 'POST']
       }
     })
-
-    sub.subscribe('available_driver')
-    sub.subscribe('ride_requests')
   }
 
   public initListeners () {
     const io = this._io
     console.log('🎧 Initializing Socket Listeners...')
-    const redisClient = new Redis({
-      host: process.env.REDIS_HOST!,
-      port: 6379,
-      username: 'default',
-      password: process.env.REDIS_PASSWORD!
-    })
 
     io.on('connection', socket => {
       console.log(`🔗 Client connected: ${socket.id}`)
@@ -72,11 +53,6 @@ class SocketService {
           'available_drivers',
           driverId,
           JSON.stringify({ location })
-        )
-
-        await pub.publish(
-          'available_driver',
-          JSON.stringify({ driverId, location })
         )
       })
 
@@ -202,18 +178,6 @@ class SocketService {
           }
         }
       })
-    })
-
-    sub.on('message', (channel, message) => {
-      if (channel === 'ride_requests') {
-        const rideData = JSON.parse(message)
-        console.log('🚖 New Ride Request:', rideData)
-        if (io.sockets.sockets.size > 0) {
-          io.emit('event:new_ride', rideData)
-        } else {
-          console.log('⚠️ No active drivers to receive ride request.')
-        }
-      }
     })
   }
 
