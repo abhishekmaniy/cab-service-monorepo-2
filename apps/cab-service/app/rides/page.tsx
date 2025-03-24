@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { Ride } from '@prisma/client'
+import { Ride } from 'db'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
