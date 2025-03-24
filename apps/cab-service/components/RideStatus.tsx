@@ -6,7 +6,7 @@ import useWebSocket from '@/hooks/useSocket'
 import { getCoordinates } from '@/lib/geolocation'
 import { createRide } from '@/services/rideService'
 import { useAuth } from '@clerk/nextjs'
-import { Ride } from '@prisma/client'
+import { Ride } from 'db'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
