@@ -28,6 +28,7 @@
     "schema": "../prisma/schema.prisma"
   },
   "devDependencies": {
+    "@types/express": "^5.0.1",
     "@types/node": "^22.13.8",
     "@types/ws": "^8.5.14",
     "db": "*",

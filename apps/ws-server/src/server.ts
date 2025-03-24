@@ -5,8 +5,15 @@ import dotenv from "dotenv";
 async function init() {
   dotenv.config();
 
-  const httpServer = http.createServer();
   const PORT = process.env.PORT || 8080;
+
+  // Create an HTTP server with a request handler
+  const httpServer = http.createServer((req, res) => {
+    if (req.url === "/" && req.method === "GET") {
+      res.writeHead(200, { "Content-Type": "text/plain" });
+      res.end("Hello World");
+    }
+  });
 
   const socketService = new SocketService(httpServer); // Pass httpServer
 
