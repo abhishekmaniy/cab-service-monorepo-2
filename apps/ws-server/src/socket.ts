@@ -50,11 +50,17 @@ class SocketService {
       console.log(`🔗 Client connected: ${socket.id}`)
 
       socket.on('event:rider_join', ({ riderId }) => {
-        riderSockets.set(riderId, socket.id) // Always update with the latest socket ID
+        if (riderSockets.has(riderId)) {
+          io.sockets.sockets.get(riderSockets.get(riderId))?.disconnect()
+        }
+        riderSockets.set(riderId, socket.id)
         console.log(`👤 Rider ${riderId} connected with socket ${socket.id}`)
       })
 
       socket.on('event:driver_join', ({ driverId }) => {
+        if (driverSockets.has(driverId)) {
+          io.sockets.sockets.get(driverSockets.get(driverId))?.disconnect()
+        }
         driverSockets.set(driverId, socket.id)
         console.log(`🚗 Driver ${driverId} connected with socket ${socket.id}`)
       })
@@ -128,6 +134,8 @@ class SocketService {
             }))
             .sort((a, b) => a.distance - b.distance)
 
+          console.log('driverQueue', driverQueue)
+
           const assignRide = async () => {
             if (driverQueue.length === 0) {
               console.log('🚫 No drivers accepted the ride')
@@ -149,20 +157,10 @@ class SocketService {
             const driverSocketId = driverSockets.get(driverId)
             const riderSocketId = riderSockets.get(riderId)
 
-            if (driverSocketId) {
-              io.to(driverSocketId).emit('event:ride_assigned', {
-                riderId,
-                pickup,
-                destination
-              })
-
-              // Listen for driver response
-              socket.once(`event:ride_rejected`, () => {
-                console.log(`❌ Driver ${driverId} rejected ride`)
-                assignRide() // Try the next driver in queue
-              })
-
-              socket.once(`event:ride_accepted`, () => {
+            const driverSocket = io.sockets.sockets.get(driverSocketId)
+            if (driverSocket) {
+              // Listen for response from that particular driver
+              driverSocket.once('event:ride_accepted', () => {
                 console.log(`✅ Driver ${driverId} accepted ride`)
                 if (riderSocketId) {
                   io.to(riderSocketId).emit('event:ride_confirmed', {
@@ -173,6 +171,14 @@ class SocketService {
                 // Remove driver from available list
                 redisClient.hdel('available_drivers', driverId)
               })
+
+              driverSocket.once('event:ride_rejected', () => {
+                console.log(`❌ Driver ${driverId} rejected ride`)
+                assignRide() // Try assigning to the next driver
+              })
+            } else {
+              console.log(`⚠️ Driver ${driverId} socket not found`)
+              assignRide() // Try the next driver
             }
           }
 
