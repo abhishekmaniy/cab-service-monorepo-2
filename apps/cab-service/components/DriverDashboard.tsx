@@ -7,6 +7,11 @@ import { useAuth } from '@clerk/nextjs'
 import { useEffect, useState } from 'react'
 import { Button } from './ui/button'
 
+interface Acknowledgment {
+  success: boolean
+  message?: string
+}
+
 export default function DriverDashboard () {
   const [isAvailable, setIsAvailable] = useState(false)
   const { availableRide, setAvailableRide } = useRideStore()
@@ -61,7 +66,7 @@ export default function DriverDashboard () {
         pickup: ride.pickup,
         destination: ride.destination
       },
-      (ack: any) => {
+      (ack: Acknowledgment) => {
         console.log('🚀 Event Acknowledgment:', ack)
       }
     )
